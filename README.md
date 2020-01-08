@@ -1,6 +1,8 @@
 # Chinook-SQLite-Practice
-Practicing SQLite queries using the Chinook Database based on the exercises found here:
+Practicing SQLite queries using the Chinook Database. The SQLite database can be downloaded for free here:
+https://www.sqlitetutorial.net/sqlite-sample-database/
 
+The code I have written is based on the exercises found here:
 https://github.com/nashville-software-school/bangazon-corp/blob/master/post-orientation-exercises/chinook/02-sql_queries-chinook.md
 
 
