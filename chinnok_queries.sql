@@ -207,3 +207,19 @@ FROM (SELECT mt.Name AS MediaType, COUNT(*) AS Purchases
       GROUP BY MediaType)
 
 #Provide a query that shows the number tracks purchased in all invoices that contain more than one genre.
+SELECT inv.InvoiceId, COUNT(*) AS TracksPurchased, NumGenres
+FROM invoices inv                                                                                 
+INNER JOIN (SELECT invit.InvoiceId, COUNT(DISTINCT(tr.GenreId)) AS NumGenres
+            FROM invoice_items invit
+            LEFT JOIN tracks tr                                                                    
+            ON invit.TrackId = tr.TrackId
+            GROUP BY invit.InvoiceId
+            HAVING NumGenres > 1) test
+ON inv.InvoiceId = test.InvoiceId
+LEFT JOIN invoice_items invit
+ON inv.InvoiceId = invit.InvoiceId
+GROUP BY inv.InvoiceId                                                                                 
+                                                                                 
+                                                                                 
+                                                                                 
+                                                                                 
