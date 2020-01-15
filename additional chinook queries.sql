@@ -85,3 +85,33 @@ ON al.ArtistId = ar.ArtistId
 GROUP BY pl.PlaylistId
 HAVING SUM(ar.Name == 'AC/DC') == 0
 AND SUM(ar.Name == 'Chico Buarque') == 0
+
+#Count how many tracks belong to the MediaType "Protected MPEG-4 video file".
+SELECT COUNT(*) AS NumberProtected
+FROM tracks tr
+LEFT JOIN media_types mt
+ON tr.MediaTypeId = mt.MediaTypeId
+WHERE mt.MediaTypeId == 3
+
+#Find the least expensive Track that has the Genre "Electronica/Dance".
+SELECT tr.Name AS TrackName
+FROM tracks tr
+LEFT JOIN genres ge
+ON tr.GenreId = ge.GenreId
+WHERE ge.Name = 'Electronica/Dance'
+GROUP BY ge.Name
+HAVING MIN(tr.UnitPrice)
+
+#Find the all the Artists whose names start with A.
+SELECT Name 
+FROM artists
+WHERE Name LIKE "A%"
+
+#Find all the Tracks that belong to the first Playlist.
+SELECT Name
+FROM tracks tr
+LEFT JOIN playlist_track pt
+ON tr.TrackId = pt.TrackId
+INNER JOIN playlists pl
+ON pl.PlaylistId = pt.PlaylistId
+WHERE pl.PlaylistId == 1
