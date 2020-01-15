@@ -59,7 +59,7 @@ ON tr.TrackId = pt.TrackId
 LEFT JOIN genres ge
 ON ge.GenreId = tr.GenreId
 GROUP BY pl.PlaylistId
-HAVING COUNT(ge.Name == 'Latin') == 0
+HAVING SUM(ge.Name == 'Latin') == 0
 
 #What is the space (in bytes) occupied by the playlist 'Grunge' and how much would it cost? (Assume that the total cost of a playlist is the sum of its constituent tracks)
 SELECT SUM(tr.Bytes) AS Size, SUM(tr.UnitPrice) AS TotalPrice
@@ -83,13 +83,5 @@ ON tr.AlbumId = al.AlbumId
 LEFT JOIN artists ar
 ON al.ArtistId = ar.ArtistId
 GROUP BY pl.PlaylistId
-HAVING COUNT(ar.Name == 'AC/DC') == 0
-AND COUNT(ar.Name == 'Chico Buarque') == 0
-
-
-
-
-
-
-
-
+HAVING SUM(ar.Name == 'AC/DC') == 0
+AND SUM(ar.Name == 'Chico Buarque') == 0
