@@ -115,3 +115,56 @@ ON tr.TrackId = pt.TrackId
 INNER JOIN playlists pl
 ON pl.PlaylistId = pt.PlaylistId
 WHERE pl.PlaylistId == 1
+
+#What is the total number of songs and total cost of the songs for the genres Rock, Metal, and Jazz?
+SELECT ge.Name AS Genre, COUNT(DISTINCT tr.TrackId) AS NumSongs, SUM(tr.UnitPrice) AS TotalCost
+FROM tracks tr
+INNER JOIN genres ge
+ON tr.GenreId = ge.GenreId
+WHERE tr.GenreId IN (SELECT ge.GenreId
+                     FROM genres ge
+                     WHERE ge.Name IN ('Rock', 'Metal', 'Jazz'))
+GROUP BY ge.Name
+
+#Find all the artist names with multiple track genres.
+SELECT ar.Name
+FROM artists ar
+LEFT JOIN albums al
+ON ar.ArtistId = al.ArtistId                                       
+LEFT JOIN tracks tr                                       
+ON al.AlbumId = tr.AlbumId                                       
+LEFT JOIN genres ge                                       
+ON tr.GenreId = ge.GenreId
+GROUP BY ar.ArtistId                                       
+HAVING COUNT(DISTINCT ge.GenreId)>1    
+
+#Find the First and Last name of the customer who spent the most money.
+WITH x AS (SELECT inv.CustomerId, SUM(inv.Total) AS Purchases
+           FROM invoices inv
+           GROUP BY inv.CustomerId)
+                                       
+SELECT cu.FirstName ||" "|| cu.LastName AS CustomerName
+FROM customers cu
+INNER JOIN (SELECT x.CustomerId, MAX(x.Purchases)
+            FROM x) y
+ON cu.CustomerId == y.CustomerId
+                                       
+#Find the First and Last name of the employee who sold the most money.
+WITH emp_sales AS (SELECT em.EmployeeId, SUM(Total) AS TotalSales
+                   FROM employees em
+                   LEFT JOIN customers cu
+                   ON em.EmployeeId = cu.SupportRepId
+                   LEFT JOIN invoices inv
+                   ON cu.CustomerId = inv.CustomerId
+                   GROUP BY em.EmployeeId)
+                                       
+SELECT em.FirstName ||" "|| em.LastName AS EmployeeName
+FROM employees em
+INNER JOIN (SELECT EmployeeId, MAX(TotalSales)
+            FROM emp_sales) x
+ON em.EmployeeId = x.EmployeeId                                       
+                                       
+                                       
+                                       
+                                       
+                                       
