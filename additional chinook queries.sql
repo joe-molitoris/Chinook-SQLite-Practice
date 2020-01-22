@@ -130,25 +130,25 @@ GROUP BY ge.Name
 SELECT ar.Name
 FROM artists ar
 LEFT JOIN albums al
-ON ar.ArtistId = al.ArtistId                                       
-LEFT JOIN tracks tr                                       
-ON al.AlbumId = tr.AlbumId                                       
-LEFT JOIN genres ge                                       
+ON ar.ArtistId = al.ArtistId
+LEFT JOIN tracks tr
+ON al.AlbumId = tr.AlbumId
+LEFT JOIN genres ge
 ON tr.GenreId = ge.GenreId
-GROUP BY ar.ArtistId                                       
-HAVING COUNT(DISTINCT ge.GenreId)>1    
+GROUP BY ar.ArtistId
+HAVING COUNT(DISTINCT ge.GenreId)>1
 
 #Find the First and Last name of the customer who spent the most money.
 WITH x AS (SELECT inv.CustomerId, SUM(inv.Total) AS Purchases
            FROM invoices inv
            GROUP BY inv.CustomerId)
-                                       
+
 SELECT cu.FirstName ||" "|| cu.LastName AS CustomerName
 FROM customers cu
 INNER JOIN (SELECT x.CustomerId, MAX(x.Purchases)
             FROM x) y
 ON cu.CustomerId == y.CustomerId
-                                       
+
 #Find the First and Last name of the employee who sold the most money.
 WITH emp_sales AS (SELECT em.EmployeeId, SUM(Total) AS TotalSales
                    FROM employees em
@@ -157,14 +157,48 @@ WITH emp_sales AS (SELECT em.EmployeeId, SUM(Total) AS TotalSales
                    LEFT JOIN invoices inv
                    ON cu.CustomerId = inv.CustomerId
                    GROUP BY em.EmployeeId)
-                                       
+
 SELECT em.FirstName ||" "|| em.LastName AS EmployeeName
 FROM employees em
 INNER JOIN (SELECT EmployeeId, MAX(TotalSales)
             FROM emp_sales) x
-ON em.EmployeeId = x.EmployeeId                                       
+ON em.EmployeeId = x.EmployeeId
+
+#Write a query that lists for each artist and the countries of customers who have bought a track from an album produced by them. Your query should return artist.name and customer.country. Make sure to write your query as to show *no* duplicates.
+SELECT DISTINCT cu.Country, ar.Name AS Artist
+FROM artists ar
+JOIN albums al
+ON ar.ArtistId = al.ArtistId
+JOIN tracks tr
+ON al.AlbumId = tr.AlbumId
+JOIN invoice_items invit
+ON tr.TrackId = invit.TrackId
+JOIN invoices inv
+ON invit.InvoiceId = inv.InvoiceId
+JOIN customers cu
+ON inv.CustomerId = inv.CustomerId
+ORDER BY ar.ArtistId
                                        
+# Write a query that lists for each artist name the number of different countries for which there is a customer listening to their album.Only show those artists who have customers from at least 10 different countries. For your query, assume that there are artists that have the same name, but different ids(in other words, you cannot assume that names are unique). Sort your result in decreasing number of countries.
+
+WITH art_count AS (SELECT DISTINCT cu.Country, ar.ArtistId
+                   FROM artists ar
+                   JOIN albums al
+                   ON ar.ArtistId = al.ArtistId
+                   JOIN tracks tr
+                   ON al.AlbumId = tr.AlbumId
+                   JOIN invoice_items invit
+                   ON tr.TrackId = invit.TrackId
+                   JOIN invoices inv
+                   ON invit.InvoiceId = inv.InvoiceId
+                   JOIN customers cu
+                   ON inv.CustomerId = cu.CustomerId)                                                                             
                                        
-                                       
-                                       
+SELECT ar.Name, COUNT(ac.Country) AS Countries
+FROM artists ar                                       
+LEFT JOIN art_count ac 
+ON ar.ArtistId = ac.ArtistId                                       
+GROUP BY ar.ArtistId
+HAVING Countries>=10                                       
+ORDER BY Countries DESC                     
                                        
