@@ -1,26 +1,30 @@
 #Which artists did not make any albums at all? Include their names in your answer.
-SELECT Name
+SELECT ar.Name
 FROM artists ar
-LEFT OUTER JOIN albums al
-ON al.ArtistId = ar.ArtistId
-WHERE al.ArtistId IS NULL
+WHERE ar.Name NOT IN (SELECT al.Name
+                      FROM albums al)
 
 #Which artists did not record any tracks of the Latin genre?
-SELECT DISTINCT(ar.Name)
+SELECT ar.Name
 FROM artists ar
-LEFT JOIN (SELECT al.Name
-          FROM albums al
-          LEFT JOIN tracks tr
-          ON tr.AlbumId = ar.AlbumId
-          LEFT JOIN genres ge
-          ON ge.GenreId = tr.GenreId
-          WHERE ge.Name != "Latin") x
-ON x.ArtistId = ar.ArtistId
+JOIN albums al
+ON ar.ArtistId = al.ArtistId
+JOIN tracks tr
+ON al.AlbumId = tr.AlbumId
+JOIN genres ge
+ON tr.GenreId = ge.GenreId
+GROUP BY ar.ArtistId
+HAVING SUM(ge.Name = 'Latin') == 0
 
 #Which video track has the longest length?
-SELECT Name, (MAX(Milliseconds)/1000)/60 AS Minutes
-FROM tracks
-WHERE MediaTypeId == 3
+SELECT Name
+FROM tracks tr
+JOIN (SELECT tr.TrackId, MAX(Milliseconds)
+      FROM tracks tr
+      JOIN media_types mt
+      ON tr.MediaTypeId = mt.MediaTypeId
+      WHERE mt.MediaTypeId == 3) x
+ON tr.TrackId = x.TrackId
 
 #Find the names of customers who live in the same city as the top employee (i.e. the one not managed by anyone).
 SELECT cu.FirstNAme||" "||cu.LastName AS CustomerName
@@ -60,6 +64,7 @@ LEFT JOIN genres ge
 ON ge.GenreId = tr.GenreId
 GROUP BY pl.PlaylistId
 HAVING SUM(ge.Name == 'Latin') == 0
+OR ge.Name IS NULL
 
 #What is the space (in bytes) occupied by the playlist 'Grunge' and how much would it cost? (Assume that the total cost of a playlist is the sum of its constituent tracks)
 SELECT SUM(tr.Bytes) AS Size, SUM(tr.UnitPrice) AS TotalPrice
